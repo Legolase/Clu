@@ -63,6 +63,11 @@ bool in_square(const pt& point, const pt& size_square) {
 	return ((point.x < size_square.x) && (point.x > -1) && (point.y < size_square.y) && (point.y > -1)) ? true : false;
 }
 
+void set_centers(std::vector<pt>& a) {
+	for (int i = 0; i < a.size(); ++i)
+		a[i] = pt(rand(0, length - 1), rand(0, height - 1));
+}
+
 void fill(std::vector<std::vector<std::vector<bool>>>& space, const int& percent) {
 	for (int i = 0; i < length; ++i)
 		for (int j = 0; j < height; ++j) {
@@ -151,21 +156,21 @@ void show(const std::vector<std::vector<std::vector<bool>>>& space) {
 }
 
 int main() {
-	const int pace = 10;
+	const int pace = 20;
 	int counter = 0;
 
-	std::vector<pt> centers = { pt(rand(0, length - 1), rand(0, height - 1)), pt(rand(0, length - 1), rand(0, height - 1)), pt(rand(0, length - 1), rand(0, height - 1)) };
+	std::vector<pt> centers(4, pt(rand(0, length - 1), rand(0, height - 1)));
 	std::vector<std::vector<std::vector<bool>>> space(length, std::vector<std::vector<bool>> (height, std::vector<bool> (2, false)));
 
-	fill(space, 10);
+	fill(space, 5);
 
 	while (true) {
 		setcur(0, 0);
 		show(space);
-		Sleep(30);
+		Sleep(10);
 		if (++counter > pace) {
 			counter = 0;
-			centers = { pt(rand(0, length - 1), rand(0, height - 1)), pt(rand(0, length - 1), rand(0, height - 1)) };
+			set_centers(centers);
 		}
 
 		_reboot(space);
