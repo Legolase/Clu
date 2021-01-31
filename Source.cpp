@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <windows.h>
+#include <conio.h>
 
 struct pt {
 	int x, y;
@@ -30,6 +31,7 @@ struct pt {
 
 const int length = 80, height = 80;
 const pt sides[] = { {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1} };
+const char c_sides[] = { 's', 'c', 'd', 'e', 'w', 'q', 'a', 'z' };
 
 int rand(const int& a, const int& b) {
 	std::mt19937 gen{ std::random_device()() };
@@ -55,8 +57,8 @@ void setcur(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-int distance(const pt& a, const pt& b) { 
-	return round(sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2))); 
+double distance(const pt& a, const pt& b) { 
+	return sqrt((double)pow(a.x - b.x, 2) + pow(a.y - b.y, 2)); 
 }
 
 bool in_square(const pt& point, const pt& size_square) {
@@ -79,10 +81,11 @@ void fill(std::vector<std::vector<std::vector<bool>>>& space, const int& percent
 }
 
 int index_center(const pt& point, const std::vector<pt>& centers) {
-	int min_dist = length * height, index = 0;
+	double min_dist = length * height;
+	int index = 0;
 
 	for (int i = 0; i < centers.size(); ++i) {
-		int temp_dist = distance(point, centers[i]);
+		double temp_dist = distance(point, centers[i]);
 
 		if (temp_dist < min_dist) {
 			min_dist = temp_dist;
@@ -95,7 +98,8 @@ int index_center(const pt& point, const std::vector<pt>& centers) {
 
 void alive_step(std::vector<std::vector<std::vector<bool>>>& space, const pt& point, const std::vector<pt>& centers) {
 	int cent_index = index_center(point, centers), index_step = 0;
-	const int size_sides = sizeof(sides) / sizeof(sides[0]), real_dist = distance(point, centers[cent_index]);
+	const int size_sides = sizeof(sides) / sizeof(sides[0]);
+	double real_dist = distance(point, centers[cent_index]);
 
 	bool go = false;
 
@@ -104,7 +108,7 @@ void alive_step(std::vector<std::vector<std::vector<bool>>>& space, const pt& po
 		pt step = point + sides[i];
 
 		if ((in_square(step, pt(length, height))) && (!space[step.x][step.y][1])) {
-			int temp_dist = distance(step, centers[cent_index]);
+			double temp_dist = distance(step, centers[cent_index]);
 
 			if ((temp_dist < real_dist) && (temp_dist < min_dist_step)) {
 				go = true;
@@ -136,11 +140,19 @@ void _reboot(std::vector<std::vector<std::vector<bool>>>& space) {
 			space[i][j][0] = false;
 }
 
-void show(const std::vector<std::vector<std::vector<bool>>>& space) {
+void show(const std::vector<std::vector<std::vector<bool>>>& space/*, const std::vector<pt>& centers*/) {
 	std::string res = "";
 
 	for (int j = height - 1; j > -1; --j) {
 		for (int i = 0; i < length; ++i) {
+			/*if (pt(i, j) == centers[0])
+				res = res + '+';
+			else {
+				if (space[i][j][1])
+					res = res + char(219);
+				else
+					res = res + char(32);
+			}*/
 			if (space[i][j][1])
 				res = res + char(219);
 			else
@@ -156,7 +168,7 @@ void show(const std::vector<std::vector<std::vector<bool>>>& space) {
 }
 
 int main() {
-	const int pace = 20;
+	const int pace = 30;
 	int counter = 0;
 
 	std::vector<pt> centers(4, pt(rand(0, length - 1), rand(0, height - 1)));
@@ -166,8 +178,24 @@ int main() {
 
 	while (true) {
 		setcur(0, 0);
-		show(space);
+		show(space/*, centers*/);
 		Sleep(10);
+		//if (_kbhit()) {
+		//	char c = _getch();
+		//	int ind = -1;
+
+		//	for (int i = 0; i < 8; ++i)
+		//		if (c == c_sides[i]) {
+		//			ind = i;
+		//			break;
+		//		}
+
+		//	if (ind != -1)
+		//		centers[0] = centers[0] + sides[ind];
+		//	//if (in_square(temp, pt(length, height)))
+
+
+		//}
 		if (++counter > pace) {
 			counter = 0;
 			set_centers(centers);
